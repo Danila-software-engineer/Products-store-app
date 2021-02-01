@@ -1,0 +1,21 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <corners
+        android:radius="5dp" />
+
+
+
+    <!--If your shape requires only one solid color-->
+    <solid
+        android:color="#ffffff" />
+
+
+
+    <!--Use android:dashWidth="2dp" and android:dashGap="2dp"
+    to add dashes to your stroke-->
+
+
+
+
+</shape>
