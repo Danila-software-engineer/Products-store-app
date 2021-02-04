@@ -6,10 +6,15 @@ import io.reactivex.disposables.CompositeDisposable
 
 open class BaseViewModel: ViewModel() {
 
-    val successLiveData = MutableLiveData<Any>()
-    val errorLiveData = MutableLiveData<Throwable>()
+    val successLiveData = MutableLiveData<Any?>()
+    val errorLiveData = MutableLiveData<Throwable?>()
 
     val compositeDisposable = CompositeDisposable()
+
+    fun reloadLiveData(){
+        successLiveData.value = null
+        errorLiveData.value = null
+    }
 
     fun destroy(){
         compositeDisposable.dispose()

@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
 
 
-abstract class BaseFragment<VM : ViewModel, VB : ViewBinding> : Fragment() {
+abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding> : Fragment() {
 
     protected abstract val viewModel: VM
 
@@ -18,4 +18,9 @@ abstract class BaseFragment<VM : ViewModel, VB : ViewBinding> : Fragment() {
     }
 
     abstract fun getViewBinding(): VB
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.destroy()
+    }
 }
