@@ -25,7 +25,7 @@ class ProductsRepository: BaseRepository() {
             .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun postFavorites(body: Products): Observable<AnswerFavorite>{
+    fun postFavorites(body: Products): Observable<ResponseBody>{
         val product = body.transformToProductForPosting()
         return api.postFavorites(token, Content_type, product)
             .subscribeOn(Schedulers.io())
