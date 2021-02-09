@@ -14,7 +14,7 @@ import orders.appup_kw.productstoreapp.viewModel.ProductsViewModel
 
 class ProductRecyclerViewAdapter(
     private val context: Context,
-    private val products: List<Products?>,
+    private val products: List<Products>,
     private val viewModel: ProductsViewModel
 ) : RecyclerView.Adapter<ProductRecyclerViewAdapter.ProductViewHolder>() {
 
@@ -33,22 +33,23 @@ class ProductRecyclerViewAdapter(
 
     }
 
-    private fun setUpButton(view: View, viewModel: ProductsViewModel, product: Products?){
+    private fun setUpButton(view: View, viewModel: ProductsViewModel, product: Products){
+
+
         view.setBackgroundResource(R.drawable.inactivefav_button_png)
 
-        if(product?.isFav == true){
+        if(product.isFav) {
             view.setBackgroundResource(R.drawable.activated)
-            view.setOnClickListener {
-                product.isFav = false
+        }
+        view.setOnClickListener {
+            if(product.isFav) {
                 it.setBackgroundResource(R.drawable.inactivefav_button_png)
                 product.id?.let { prod -> viewModel.deleteFavorites(prod) }
-            }
-        }else {
-            view.setOnClickListener {
-                product?.isFav = true
+            }else{
                 it.setBackgroundResource(R.drawable.activated)
-                product?.let { prod -> viewModel.postFavorites(prod) }
+                product.let { prod -> viewModel.postFavorites(prod) }
             }
+            product.isFav = !product.isFav
         }
     }
 

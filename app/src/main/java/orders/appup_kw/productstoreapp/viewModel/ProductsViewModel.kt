@@ -32,7 +32,7 @@ class ProductsViewModel: BaseViewModel() {
             productsRepository.getFavorites()
                 .flatMap { prod -> Observable.fromIterable(prod) }
                 .doOnComplete { successLiveData.value = list }
-                .subscribe({ success -> (success as Products).id?.let { list[it].isFav = true } },
+                .subscribe({ success -> (success as Products).id?.let { list[it-1].isFav = true } },
                     {error -> errorLiveData.value = error})
         )
     }
@@ -48,7 +48,7 @@ class ProductsViewModel: BaseViewModel() {
 
 
     fun deleteFavorites(id: Int){
-        getFavoritesForDeleting(id-1)
+        getFavoritesForDeleting(id)
     }
 
 

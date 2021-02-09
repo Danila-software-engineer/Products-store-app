@@ -14,4 +14,8 @@
         android:id="@+id/favoritesFragment"
         android:name="orders.appup_kw.productstoreapp.fragment.FavoritesFragment"
         android:label="FavoritesFragment" />
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="orders.appup_kw.productstoreapp.fragment.CartFragment"
+        android:label="CartFragment" />
 </navigation>

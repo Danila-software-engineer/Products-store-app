@@ -6,6 +6,7 @@ import dagger.Provides
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import orders.appup_kw.productstoreapp.network.Api
+import orders.appup_kw.productstoreapp.repository.CartRepository
 import orders.appup_kw.productstoreapp.repository.FavoritesRepository
 import orders.appup_kw.productstoreapp.repository.ProductsRepository
 import orders.appup_kw.productstoreapp.utils.BaseUrl
@@ -55,5 +56,11 @@ object NetworkModule {
     @Singleton
     fun provideFavoritesRepository(): FavoritesRepository {
         return FavoritesRepository()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCartRepository(): CartRepository {
+        return CartRepository()
     }
 }

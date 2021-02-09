@@ -25,7 +25,7 @@ class ProductsFragment : BaseFragment<ProductsViewModel, FragmentProductsBinding
 
 
     lateinit var adapter: ProductRecyclerViewAdapter
-    var products: MutableList<Products?> = ArrayList()
+    var products: MutableList<Products> = ArrayList()
 
 
     override fun onCreateView(
@@ -57,11 +57,13 @@ class ProductsFragment : BaseFragment<ProductsViewModel, FragmentProductsBinding
 
     private fun error(it: Throwable){
         Toast.makeText(activity,"Error: $it", Toast.LENGTH_SHORT).show()
+        binding.progressBar.visibility = View.GONE
     }
 
     private fun success(it: Any){
         try {
-            (it as List<Products>).let {it1 -> products.addAll(it1) }
+            (it as List<Products>).let {it1 -> products.addAll(it1)
+                binding.progressBar.visibility = View.GONE}
         }catch (e: Exception){
             e.printStackTrace()
         }

@@ -5,29 +5,23 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import okhttp3.ResponseBody
 import orders.appup_kw.productstoreapp.base.BaseRepository
-import orders.appup_kw.productstoreapp.network.model.*
-import orders.appup_kw.productstoreapp.network.model.Mapper.Companion.transformToProductForPosting
-import orders.appup_kw.productstoreapp.network.model.MapperForCart.Companion.transformToProductForCartPosting
+import orders.appup_kw.productstoreapp.network.model.CartResponse
+import orders.appup_kw.productstoreapp.network.model.PatchAmount
+import orders.appup_kw.productstoreapp.network.model.Products
 import orders.appup_kw.productstoreapp.utils.Content_type
 import orders.appup_kw.productstoreapp.utils.token
 
-class FavoritesRepository: BaseRepository() {
+class CartRepository: BaseRepository() {
 
-    fun getFavorites(): Observable<List<Products>> {
-        return api.getFavorites(token)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-    }
-
-    fun getCart(): Observable<List<CartResponse>> {
+    fun getProducts(): Observable<List<CartResponse>> {
         return api.getCart(token)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun postCart(body: Products): Observable<ResponseBody>{
-        val product = body.transformToProductForCartPosting(1)
-        return api.postCart(token, Content_type, product)
+    fun patchCart(id: String,amount: Int): Observable<ResponseBody>{
+        val product = PatchAmount(amount)
+        return api.patchCart(token, Content_type, id, product)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
     }
@@ -37,6 +31,4 @@ class FavoritesRepository: BaseRepository() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
     }
-
-
 }
