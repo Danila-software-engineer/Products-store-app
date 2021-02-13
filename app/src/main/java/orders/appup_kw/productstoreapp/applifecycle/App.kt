@@ -1,5 +1,6 @@
 package orders.appup_kw.productstoreapp.applifecycle
 
+
 import android.app.Application
 import orders.appup_kw.productstoreapp.di.AppComponent
 import orders.appup_kw.productstoreapp.di.DaggerAppComponent

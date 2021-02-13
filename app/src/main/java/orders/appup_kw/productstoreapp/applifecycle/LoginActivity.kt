@@ -7,65 +7,55 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import io.reactivex.disposables.CompositeDisposable
 import orders.appup_kw.productstoreapp.R
+import orders.appup_kw.productstoreapp.biometric.Biometric
 import java.util.concurrent.Executor
 
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var executor: Executor
-    private lateinit var biometricPrompt: BiometricPrompt
-    private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    private lateinit var biometric: Biometric
+
+    private val compositeDisposable = CompositeDisposable()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        executor = ContextCompat.getMainExecutor(this)
-        biometricPrompt = BiometricPrompt(this, executor,
-                object : BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationError(errorCode: Int,
-                                                       errString: CharSequence) {
-                        super.onAuthenticationError(errorCode, errString)
+        setContentView(R.layout.activity_login)
 
-                        Toast.makeText(applicationContext,
-                                "Authentication error: $errString", Toast.LENGTH_SHORT)
-                                .show()
-                    }
+        initBiometric()
+        observe()
+    }
 
-                    override fun onAuthenticationSucceeded(
-                            result: BiometricPrompt.AuthenticationResult) {
-                        super.onAuthenticationSucceeded(result)
+    private fun initBiometric(){
+        biometric = Biometric(this)
+    }
 
-                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                        startActivity(intent)
-                    }
+    private fun observe(){
+        compositeDisposable.add(
+                biometric.launchFingerprintAuth()
+                        .doOnComplete{doOnComplete()}
+                        .doOnError{doOnError()}
+                        .subscribe()
+        )
+    }
 
-                    override fun onAuthenticationFailed() {
-                        super.onAuthenticationFailed()
-                        Toast.makeText(applicationContext, "Authentication failed",
-                                Toast.LENGTH_SHORT)
-                                .show()
-                    }
-                })
+    private fun doOnError(){
+        Toast.makeText(this, "Authentication failed",
+                Toast.LENGTH_SHORT)
+                .show()
+    }
 
+    private fun doOnComplete(){
+        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+        startActivity(intent)
+    }
 
-
-
-        promptInfo = if(android.os.Build.VERSION.SDK_INT<=android.os.Build.VERSION_CODES.Q){
-            BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Fingerprint auth")
-                    .setSubtitle("Log in using your biometric credential")
-                    .setDeviceCredentialAllowed(true)
-                    .build()
-        }else{
-            BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Fingerprint auth")
-                    .setSubtitle("Log in using your biometric credential")
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                    .build()
-        }
-
-        biometricPrompt.authenticate(promptInfo)
-
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 }
