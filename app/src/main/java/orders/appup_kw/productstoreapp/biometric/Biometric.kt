@@ -13,60 +13,81 @@ class Biometric(private var context: Context) {
     private lateinit var executor: Executor
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
-    val observable = PublishSubject.create<String>()
+    private val observable = PublishSubject.create<String>()
+    private lateinit var authenticationCallback: BiometricPrompt.AuthenticationCallback
+
+    private val titleOfAuth = "Fingerprint auth"
+    private val subtitleOfAuth = "Log in using your biometric credential"
 
     init {
         initExecutor()
+        initAuthenticationCallback()
         initBiometricPrompt()
-        initPromptInfo()
-
+        initPromptInfoWithCheckVersion()
     }
 
     private fun initExecutor(){
         executor = ContextCompat.getMainExecutor(context)
     }
 
-    private fun initBiometricPrompt(){
-        biometricPrompt = BiometricPrompt(context as FragmentActivity, executor,
-                object : BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationError(errorCode: Int,
-                                                       errString: CharSequence) {
-                        super.onAuthenticationError(errorCode, errString)
-                        observable.onError(Throwable("Authentication error: $errString"))
-                    }
-
-                    override fun onAuthenticationSucceeded(
-                            result: BiometricPrompt.AuthenticationResult) {
-                        super.onAuthenticationSucceeded(result)
-                        observable.onComplete()
-                    }
-
-                    override fun onAuthenticationFailed() {
-                        super.onAuthenticationFailed()
-                        observable.onError(Throwable("Authentication failed"))
-                    }
-
-                })
+    private fun initAuthenticationCallback(){
+        authenticationCallback = AuthenticationCallback()
     }
 
-    private fun initPromptInfo(){
-        promptInfo = if(android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.Q){
-            BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Fingerprint auth")
-                    .setSubtitle("Log in using your biometric credential")
-                    .setDeviceCredentialAllowed(true)
-                    .build()
+    private fun initBiometricPrompt(){
+        biometricPrompt = BiometricPrompt(context as FragmentActivity, executor, authenticationCallback)
+    }
+
+    private fun initPromptInfoWithCheckVersion(){
+        if(android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.Q){
+            initPromptInfoAndroidVersionLower11()
         }else{
-            BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Fingerprint auth")
-                    .setSubtitle("Log in using your biometric credential")
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                    .build()
+            initPromptInfoAndroidVersionIs11()
         }
+    }
+
+    private fun initPromptInfoAndroidVersionIs11(){
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(titleOfAuth)
+                .setSubtitle(subtitleOfAuth)
+                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                .build()
+    }
+
+    private fun initPromptInfoAndroidVersionLower11(){
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(titleOfAuth)
+                .setSubtitle(subtitleOfAuth)
+                .setDeviceCredentialAllowed(true)
+                .build()
     }
 
     fun launchFingerprintAuth(): PublishSubject<String> {
         biometricPrompt.authenticate(promptInfo)
         return observable
     }
+
+
+
+    inner class AuthenticationCallback :BiometricPrompt.AuthenticationCallback(){
+        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+            super.onAuthenticationError(errorCode, errString)
+            //An error has occurred
+            observable.onError(Throwable("Authentication error: $errString"))
+        }
+
+        override fun onAuthenticationSucceeded(
+                result: BiometricPrompt.AuthenticationResult) {
+            super.onAuthenticationSucceeded(result)
+            //Successfully completed
+            observable.onComplete()
+        }
+
+        override fun onAuthenticationFailed() {
+            super.onAuthenticationFailed()
+            //An error has occurred
+            observable.onError(Throwable("Authentication failed"))
+        }
+    }
+
 }
